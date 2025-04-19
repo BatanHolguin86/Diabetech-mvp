@@ -7,13 +7,18 @@ app = Flask(__name__)
 # Ruta para la página principal
 @app.route('/')
 def dashboard():
-    return render_template('dashboard.html')
+    # Se pasa una lista vacía por defecto
+    return render_template('dashboard.html', data=[])
 
-# Ruta para recibir datos simulados (opcional, si deseas extender)
+# Ruta para recibir datos simulados (opcional para pruebas)
 @app.route('/submit', methods=['POST'])
 def submit():
     data = request.form.to_dict()
     print("Datos recibidos:", data)
+
+    # Aquí puedes guardar los datos si lo necesitas
+    # Por ahora, solo se imprimen y se redirige
+
     return redirect(url_for('dashboard'))
 
 # Iniciar el servidor correctamente en Render
