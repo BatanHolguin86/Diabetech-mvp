@@ -1,0 +1,22 @@
+body {
+    font-family: sans-serif;
+    padding: 20px;
+}
+input, select, button {
+    display: block;
+    margin: 10px 0;
+    width: 100%;
+    padding: 10px;
+}
+.panel {
+    margin-top: 30px;
+}
+ul {
+    background: #f0f0f0;
+    padding: 10px;
+}
+@media (max-width: 600px) {
+    body {
+        font-size: 18px;
+    }
+}
