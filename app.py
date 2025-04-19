@@ -1,24 +1,22 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
+import os
+import json
 
 app = Flask(__name__)
 
-data_store = {
-    "glucosa": ["105 mg/dL"],
-    "comidas": ["Desayuno: Avena y fruta"],
-    "entrenos": ["Caminata 30 min"]
-}
+# Ruta para la página principal
+@app.route('/')
+def dashboard():
+    return render_template('dashboard.html')
 
-@app.route("/")
-def home():
-    return render_template("dashboard.html", data=data_store)
+# Ruta para recibir datos simulados (opcional, si deseas extender)
+@app.route('/submit', methods=['POST'])
+def submit():
+    data = request.form.to_dict()
+    print("Datos recibidos:", data)
+    return redirect(url_for('dashboard'))
 
-@app.route("/registro", methods=["POST"])
-def registro():
-    tipo = request.form.get("tipo")
-    valor = request.form.get("valor")
-    if tipo in data_store:
-        data_store[tipo].append(valor)
-    return redirect("/")
-
-if __name__ == "__main__":
-    app.run(debug=True)
+# Iniciar el servidor correctamente en Render
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 10000))
+    app.run(host='0.0.0.0', port=port, debug=True)
