@@ -1,27 +1,44 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 import os
 import json
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "dev")
 
-# Ruta para la página principal
-@app.route('/')
-def dashboard():
-    # Se pasa una lista vacía por defecto
-    return render_template('dashboard.html', data=[])
+DATA_FILE = "data.json"
 
-# Ruta para recibir datos simulados (opcional para pruebas)
-@app.route('/submit', methods=['POST'])
-def submit():
-    data = request.form.to_dict()
-    print("Datos recibidos:", data)
+def load_data():
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {
+        "glucosa": ["105 mg/dL"],
+        "comidas": ["Desayuno: Avena y fruta"],
+        "entrenos": ["Caminata 30 min"],
+    }
 
-    # Aquí puedes guardar los datos si lo necesitas
-    # Por ahora, solo se imprimen y se redirige
 
-    return redirect(url_for('dashboard'))
+def save_data(data):
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
-# Iniciar el servidor correctamente en Render
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 10000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+data_store = load_data()
+
+@app.route("/")
+def home():
+    return render_template("dashboard.html", data=data_store)
+
+@app.route("/registro", methods=["POST"])
+def registro():
+    tipo = request.form.get("tipo")
+    valor = request.form.get("valor")
+    if tipo in data_store:
+        data_store[tipo].append(valor)
+        save_data(data_store)
+        flash("Registro agregado")
+    return redirect(url_for("home"))
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    debug = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+    app.run(host="0.0.0.0", port=port, debug=debug)
